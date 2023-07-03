@@ -1,0 +1,50 @@
+---
+title: "Productivity_Study"
+output:
+  html_document
+date: "2023-07-03"
+---
+
+# input data
+data <- data.frame(
+  City.Region = c("Cambridgeshire and Peterborough Combined Authority", 
+                  "Greater Brighton City Region", 
+                  "Greater London Authority"),
+  "X2004" = c(38.19, 33.28, 48.20),
+  # ... rest of the data ...
+  "X2021" = c(40.32, 40.00, 54.29)
+)
+
+# additional data
+additional_data <- data.frame(
+  City.Region = c("Greater Manchester Combined Authority",
+                  "Liverpool City Region Combined Authority",
+                  # ... rest of the data ...
+                  "West of England Combined Authority"),
+  "X2004" = c(32.50476884, 34.11158054, 32.43106188, 32.38683771, 32.71114832, 29.79235276, 33.02071755, 32.43106188, 32.12149265, 35.4383058),
+  # ... rest of the data ...
+  "X2021" = c(35.81125289, 35.82178871, 32.65050683, 35.06320965, 38.46627958, 32.02889343, 33.37747842, 36.48554538, 34.91570817, 39.73057801)
+)
+
+# merge the original data with the additional data
+full_data <- rbind(data, additional_data)
+
+# transform data to long format
+full_data_long <- tidyr::pivot_longer(full_data, 
+                                      cols = starts_with("X"),
+                                      names_to = "Year",
+                                      values_to = "Value")
+
+# replace the 'X' in the year
+full_data_long$Year <- gsub("X","", full_data_long$Year)
+
+# convert the Year column to numeric
+full_data_long$Year <- as.numeric(full_data_long$Year)
+
+# Plot
+ggplot(full_data_long, aes(x = Year, y = Value, group = City.Region)) +
+  geom_line(aes(color = City.Region == "Liverpool City Region Combined Authority"), size = 2) +
+  scale_color_manual(values = c(FALSE = "grey", TRUE = "pink"), guide = "none") +
+  labs(title = "City Region Data", x = "Year", y = "Value") +
+  theme_minimal() +
+  theme(legend.position = "none")
